@@ -81,6 +81,7 @@
 			
 			$this->target='main';
 			$title='';
+			$description=null;
 			$layout=null;
 			
 			foreach($parsed_attr as $attr)

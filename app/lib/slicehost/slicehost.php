@@ -179,8 +179,9 @@ class Slicehost
 		// since we are posting well formed xml documents instead of
 		// post data, all the parameters will be appended as query strings
 		// since they are only used in the api in weird places.
-		foreach($paramters as $key=>$value)
-			$request->addQueryString($key,$value);
+		if ($parameters)
+			foreach($parameters as $key=>$value)
+				$request->addQueryString($key,$value);
 		
 		// send it off
 		$request->sendRequest(true);
