@@ -1,6 +1,6 @@
 <?
-uses('system.external.slicehost.slicehost_exception');
-uses('system.external.slicehost.slicehost_resource_base');
+require_once('slicehost_exception.php');
+require_once('slicehost_resource_base.php');
 
 /**
 *

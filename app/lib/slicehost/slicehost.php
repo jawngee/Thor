@@ -1,6 +1,6 @@
 <?
-uses('system.external.PEAR.HTTP.Request');
-uses('system.external.slicehost.slice_resource');
+require_once('HTTP/Request.php');
+require_once('slice_resource.php');
 
 /**
 *
@@ -96,7 +96,6 @@ class Slicehost
 	 */
 	private function build_response($body)
 	{
-		dump($body);
 		$xml=simplexml_load_string($body);
 
 		// check to see if the server returned an array of objects

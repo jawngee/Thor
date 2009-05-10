@@ -1,0 +1,2 @@
+<?
+class DefaultLayout extends Layout {}
