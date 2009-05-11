@@ -10,6 +10,11 @@ class PQPProfiler extends Profiler
 		$this->instance=new PhpQuickProfiler(PhpQuickProfiler::getMicroTime());
 	}
 	
+	protected function _log($message)
+	{
+		Console::log($message);
+	}
+	
 	protected function _error($exception,$message)
 	{
 		Console::logError($exception,$message);

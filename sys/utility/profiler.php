@@ -15,6 +15,12 @@ abstract class Profiler
 		}
 	}
 	
+	public static function Log($message)
+	{
+		if (self::$_profiler)
+			self::$_profiler->_log($message);
+	}
+	
 	public static function Error($exception,$message)
 	{
 		if (self::$_profiler)
@@ -44,6 +50,8 @@ abstract class Profiler
 			return self::$_profiler->_display();
 	}
 
+	protected abstract function _log($message);
+	
 	protected abstract function _error($exception, $message);
 
 	protected abstract function _memory($variable, $name);

@@ -17,7 +17,7 @@
 
 function displayPqp($output, $config) {
 	
-$cssUrl = 'css/pqp/pQp.css';
+$cssUrl = '/css/pqp/pQp.css';
 		
 echo <<<JAVASCRIPT
 <!-- JavaScript -->

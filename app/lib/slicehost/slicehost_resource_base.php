@@ -75,10 +75,10 @@ class SlicehostResourceBase implements ArrayAccess, Iterator
 					$this->_props[$nodeName]=array();
 					$children=$node->xpath('child::*');
 					foreach($children as $child)
-						$this->_props[$nodeName][]=(String)$child;
+						$this->_props[str_replace('-','_',$nodeName)][]=(String)$child;
 				}
 				else
-					$this->_props[$nodeName]=(String)$node;
+					$this->_props[str_replace('-','_',$nodeName)]=(String)$node;
 			}
 	}
 

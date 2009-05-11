@@ -120,9 +120,9 @@ class Dispatcher
 		$result['path'] = '';
 		$result['controller'] = 'index';
 		$result['method'] = 'index';
-
+		
 		// Does the requested controller exist in the root folder?
-		if (file_exists($result['root'] . $segments[0] . EXT))
+		if (file_exists($result['root']  . '/' . $segments[0] . EXT))
 		{
 			$result['controller'] = $segments[0];
 			$segments = array_slice($segments, 1);
@@ -157,6 +157,8 @@ class Dispatcher
 	{
 		$parsed_uri=self::ParseURI();
 		
+		Profiler::Log($parsed_uri);
+		
 		uses('app.controller.'.$parsed_uri['controller']);
 		$classname=$parsed_uri['controller'].'Controller';
 		
@@ -164,9 +166,14 @@ class Dispatcher
 			throw new Exception("'$classname' can not be found in '".$parsed_uri['controller']."'.");
 			
 		// sets the request method.  By setting X-Ajax-Real-Method header, you can override since some XMLHTTPRequest don't allow PUT, DELETE or other custom verbs.
-		$reqmethod=(isset($_SERVER['HTTP_X_AJAX_REAL_METHOD'])) ? $_SERVER['HTTP_X_AJAX_REAL_METHOD'] : $_SERVER['REQUEST_METHOD'];
-		
-		$found_method=find_methods($classname, $reqmethod."_".$parsed_uri['method'], $parsed_uri['method'], 'index');
+		if (isset($_REQUEST['real_method']))
+			$reqmethod=$_REQUEST['real_method'];
+		else if (isset($_SERVER['HTTP_X_AJAX_REAL_METHOD']))
+			$reqmethod=$_SERVER['HTTP_X_AJAX_REAL_METHOD'] ;
+		else
+			$reqmethod=$_SERVER['REQUEST_METHOD'];
+			
+		$found_method=find_methods($classname, $reqmethod."_".$parsed_uri['method'], $parsed_uri['method'], $reqmethod."_index", 'index');
 
 		if (!$found_method)
 			throw new Exception("Could not find an action to call.");
@@ -207,6 +214,7 @@ class Dispatcher
 			$req_type=(preg_match('#iPhone#',$_SERVER['HTTP_USER_AGENT'])) ? 'iphone' : $req_type;
 			
 		$view_name=$parsed_uri['path'].$parsed_uri['controller'].'/'.$parsed_uri['method'];
+		Profiler::Log($view_name);
 		
 		if ($req_type=='ajax')
 		{
@@ -245,7 +253,7 @@ class Dispatcher
 		}
 			
 		if (($view_found==false) && ($req_type!='ajax'))
-			vomit($view_name);
+			throw new Exception("Could not find view ".PATH_APP."views/$view_name");
 							
 		if ($view_found)
 		{	

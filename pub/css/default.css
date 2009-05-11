@@ -1,0 +1,99 @@
+* {
+	font-family: "Lucida Grande", Tahoma, Arial, Helvetica, Sans-Serif;
+	font-size:14px;
+	margin:0px;
+	padding:0px;
+}
+
+/*
+#E6E2AF
+#A7A37E
+#EFECCA
+#046380
+#002F2F
+
+1C1D21
+31353D
+445878
+92CDCF
+EEEFF7
+*/
+
+
+body { background:#1C1D21; }
+
+#container
+{
+	margin: auto; 
+	width:960px; 
+	background: #EEEFF7;  
+	min-height:640px; 
+}
+
+#header {
+	background:#31353D; 
+	color:#EEEFF7;
+	padding:0.5em;
+	font-size: 2em;
+}
+
+#nav { 
+	background: #445878; 
+	min-height:3.25em; 
+}
+
+#nav ul li {
+	float:left;
+	height:1.25em;
+	padding:1em;
+	margin-right:2px;
+	background: #445878;
+}
+
+#nav ul li.selected {
+	background: #EEEFF7;
+}
+
+#nav a {
+	text-decoration:none;
+	color: #EEEFF7;
+}
+
+#nav ul li.selected a {
+	text-decoration:none;
+	color: #445878;
+}
+
+#main { 
+	padding:1em;
+}
+
+#main table {
+	margin:auto;
+}
+
+#main th {
+	padding:0.75em;
+	background: #EEEFF7;
+	color:#445878;
+	font-weight: bold;
+}
+
+#main td {
+	padding:0.75em;
+	color: #1C1D21;
+}
+
+#main tr.odd {
+	background: #FFF;
+}
+
+#main table input[type='submit'] {
+	background: #445878;
+	color:#EEEFF7;
+	padding:0.5em;
+	font-size:0.65em;
+	font-weight: bold;
+	border:1px solid #31353D;
+	text-transform: uppercase;
+}

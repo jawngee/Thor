@@ -11,8 +11,20 @@
 	</head>
 
 	<body>
-		<layout:content id="main" />
-
-		<? Profiler::Display() ?>
+		<div id="container">
+			<div id="header">
+				Slicehost Manager
+			</div>
+			<div id="nav">
+				<ul>
+					<li class="selected"><a href="/">Inventory</a></li>
+					<li><a href="/configs">Slice Configurations</a></li>
+					<li><a href="/create">Create Slice</a></li>
+				</ul>
+			</div>
+			<layout:content id="main" wrap="div" use_id="true" />
+		</div>
+		
+		<? if (!$_GET['noprofiler']) Profiler::Display(); ?>
 	</body>
 </html>
