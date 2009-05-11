@@ -36,7 +36,7 @@
 define('PATH_ROOT', dirname(dirname(__FILE__)."..")."/"); 	/** Root path */
 define('PATH_APP', PATH_ROOT."app/");						/** Root path to app files */
 define('PATH_SYS', PATH_ROOT."sys/");						/** Root path to system files */
-define('PATH_CONFIG', PATH_ROOT."conf/");					/** Root path to config files */
+define('PATH_CONFIG', PATH_APP."conf/");					/** Root path to config files */
 define('PATH_TEMP', PATH_ROOT."tmp/");						/** Root path to temp directory */
 define('PATH_VENDOR', PATH_ROOT."vendor/");					/** Root path to vendor directory */
 define('EXT', '.php');										/** Default file extension */
