@@ -11,7 +11,8 @@ class IndexController extends Controller
 		
 		$data=PATH_APP.'data/inventory.data';
 		
-		if ((file_exists($data)) && (fileatime($data)>(time()-300)))
+		$maxtime=(isset($_GET['refresh'])) ? -300 : 300;
+		if ((file_exists($data)) && (fileatime($data)>(time()-$maxtime)))
 			$slices=unserialize(file_get_contents($data));
 		else
 		{

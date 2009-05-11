@@ -13,20 +13,31 @@ class SlicesController extends Controller
 		$this->slicehost=new Slicehost($conf->key);
 	}
 	
+	public function put_index($id)
+	{
+		$slice=new SliceResource($this->slicehost,$id);
+		$slice->reboot(($this->post->action=="hard_reboot"));
+		redirect("/?refresh");
+	}
+	
 	public function delete_index($id)
 	{
 		$slice=new SliceResource($this->slicehost,$id);
-		return array(
-			'slice' => $slice
-		);
+		$slice->delete();
+		redirect("/?refresh");
 	}
 	
 	public function index($id)
 	{
 		$slice=new SliceResource($this->slicehost,$id);		
 
+		Profiler::Log($slice);
+		
 		return array(
-			'slice' => $slice
+			'slice' => $slice,
+			'images' => $this->slicehost->images,
+			'backups' => $this->slicehost->backups,
+			'flavors' => $this->slicehost->flavors
 		);
 	}
 }

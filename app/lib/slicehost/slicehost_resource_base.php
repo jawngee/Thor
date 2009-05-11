@@ -66,6 +66,7 @@ class SlicehostResourceBase implements ArrayAccess, Iterator
 			{
 				$nodeName=$node->getName();
 				
+				
 				// determine if this is an array
 				$type=(String)$node['type'];
 				if ($type=='array')
@@ -80,6 +81,7 @@ class SlicehostResourceBase implements ArrayAccess, Iterator
 				else
 					$this->_props[str_replace('-','_',$nodeName)]=(String)$node;
 			}
+			Profiler::Log($this->_props);
 	}
 
 	/**

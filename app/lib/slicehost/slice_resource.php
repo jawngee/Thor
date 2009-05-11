@@ -41,6 +41,9 @@ require_once('slicehost_resource_base.php');
  */
 class SliceResource extends SlicehostResourceBase
 {
+	private $image=null;
+	private $flavor=null;
+	
 	/**
 	 * Constructor 
 	 * @param $slicehost Slicehost Instance of a slicehost.
@@ -56,8 +59,8 @@ class SliceResource extends SlicehostResourceBase
 			$slice=$slicehost->request('slices',$item);
 			
 			// copy the values.
-			foreach($slice as $key=>$value)
-				$this->{$key}=$value;
+			foreach($slice->_props as $key=>$value)
+				$this->_props[str_replace('-','_',$key)] =$value;
 		}
 		else // create from the item, or create a new unsaved slice resource.
 		{
@@ -98,7 +101,7 @@ RDOC;
 <?xml version="1.0" encoding="UTF-8"?>
 <slice>
   <name>{$this->_props['name']}</name>
-  <backup-id type="integer">{$this->_props['backup_id']}</backup-id>
+  <backup_id type="integer">{$this->_props['backup_id']}</backup-id>
   <flavor-id type="integer">{$this->_props['flavor_id']}</flavor-id>
 </slice>
 RDOC;
@@ -162,5 +165,32 @@ RDOC;
 			$result=$this->slicehost->request('slices',$this->id,'reboot','put');
 			
 		return $result;
+	}
+	
+	public function __get($key)
+	{
+		switch($key)
+		{
+			case 'image':
+				if ($this->_image)
+					return $this->_image;
+					
+				$images=$this->slicehost->images;
+				foreach($images as $image)
+					if ($image->id==$this->image_id)
+						return $this->_image=$image;
+				break;
+			case 'flavor':
+				if ($this->_flavor)
+					return $this->_flavor;
+				
+				$flavors=$this->slicehost->flavors;
+				foreach($flavors as $flavor)
+					if ($flavor->id==$this->flavor_id)
+						return $this->_flavor=$flavor;
+				break;
+		}
+		
+		return parent::__get($key);
 	}
 }

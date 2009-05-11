@@ -136,11 +136,12 @@ function vomit($data,$show_trace=false)
  */
 function find_methods($class)
 {
-	$args=array_slice(func_get_args(),2);
-	
+	$args=array_slice(func_get_args(),1);
 	foreach($args as $arg)
+	{
 		if (method_exists($class,$arg))
 			return $arg;
+	}
 			
 	return FALSE;
 }
@@ -290,4 +291,42 @@ function &XML_serialize(&$data, $level = 0, $prior_key = NULL)
     			return $str; 
         	} 
         }
+}
+
+/**
+ * Generates a unique id based on RFC 4122 sans dashes
+ */
+function uuid() {
+   
+    // The field names refer to RFC 4122 section 4.1.2
+
+    return sprintf('%04x%04x%04x%03x4%04x%04x%04x%04x',
+        mt_rand(0, 65535), mt_rand(0, 65535), // 32 bits for "time_low"
+        mt_rand(0, 65535), // 16 bits for "time_mid"
+        mt_rand(0, 4095),  // 12 bits before the 0100 of (version) 4 for "time_hi_and_version"
+        bindec(substr_replace(sprintf('%016b', mt_rand(0, 65535)), '01', 6, 2)),
+            // 8 bits, the last two of which (positions 6 and 7) are 01, for "clk_seq_hi_res"
+            // (hence, the 2nd hex digit after the 3rd hyphen can only be 1, 5, 9 or d)
+            // 8 bits for "clk_seq_low"
+        mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535) // 48 bits for "node" 
+    ); 
+}
+
+/**
+ * Generates a unique path for files to help with cache/cdn/spreading across filesystem
+ *
+ * @return unknown
+ */
+function uuid_path($segments=3)
+{
+	$uid=uuid();
+	$result='';
+	
+	if ($segments>strlen($uid)/2)
+		$segments=strlen($uid)/2;
+
+	for($i=0; $i<$segments; $i++)
+		$result.=substr($uid,$i*2,2).'/';
+		
+	return $result;
 }

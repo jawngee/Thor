@@ -173,6 +173,8 @@ class Dispatcher
 		else
 			$reqmethod=$_SERVER['REQUEST_METHOD'];
 			
+		$reqmethod=strtoupper($reqmethod);
+			
 		$found_method=find_methods($classname, $reqmethod."_".$parsed_uri['method'], $parsed_uri['method'], $reqmethod."_index", 'index');
 
 		if (!$found_method)
@@ -213,7 +215,7 @@ class Dispatcher
 		if ($req_type=='html')
 			$req_type=(preg_match('#iPhone#',$_SERVER['HTTP_USER_AGENT'])) ? 'iphone' : $req_type;
 			
-		$view_name=$parsed_uri['path'].$parsed_uri['controller'].'/'.$parsed_uri['method'];
+		$view_name=strtolower($parsed_uri['path'].$parsed_uri['controller'].'/'.$parsed_uri['method']);
 		Profiler::Log($view_name);
 		
 		if ($req_type=='ajax')
@@ -257,6 +259,7 @@ class Dispatcher
 							
 		if ($view_found)
 		{	
+			Profiler::Log($view_name.'.'.$req_type);
 			$view=new View($view_name.'.'.$req_type);
 			
 			print $view->render($data);

@@ -1,4 +1,4 @@
-<uses:layout layout="default" title="Slicehost Manager" />
+<uses:layout layout="default" title="Slicehost Manager - Server Inventory" />
 
 <table>
 	<thead>
@@ -8,7 +8,6 @@
 		<th>Bandwidth</th>
 		<th>In</th>
 		<th>Out</th>
-		<th>&nbsp;</th>
 		<th>&nbsp;</th>
 		<th>&nbsp;</th>
 		<th>&nbsp;</th>
@@ -26,7 +25,8 @@
 			<td>{{$slice->bw_out}} GB</td>
 			<td>
 				<form method="post" action="/slices/{{$slice->id}}">
-					<input type="hidden" name="action" value="put" />
+					<input type="hidden" name="real_method" value="put" />
+					<input type="hidden" name="action" value="reboot" />
 					<input type="submit" value="Reboot" onclick="return confirm('Are you sure you want to reboot this slice?');" />
 				</form>
 			</td>
@@ -38,14 +38,9 @@
 				</form>
 			</td>
 			<td>
-				<form method="get" action="/slices/{{$slice->id}}/rebuild">
-					<input type="submit" value="Rebuild" />
-				</form>
-			</td>
-			<td>
 				<form method="post" action="/slices/{{$slice->id}}">
 					<input type="hidden" name="real_method" value="delete" />
-					<input type="submit" value="Delete"  onclick="return confirm('Are you sure you want to delete this slice?');" />
+					<input type="submit" value="Delete Slice" class="delete"  onclick="return confirm('Are you sure you want to delete this slice?');" />
 				</form>
 			</td>
 		</tr>			

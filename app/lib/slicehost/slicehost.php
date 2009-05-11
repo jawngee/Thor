@@ -78,6 +78,8 @@ class Slicehost
 	 */
 	private $key='';
 	
+	private static $_cache=array();
+	
 	/**
 	 * Constructor
 	 * 
@@ -148,7 +150,7 @@ class Slicehost
 	 * @param $postbody string The raw postbody, used in lieu of $parameters
 	 * @return string The response body
 	 */
-	public function request($path,$id=null,$action=null,$method='GET',$parameters=null,$postbody=null)
+	public function request($path,$id=null,$action=null,$method='GET',$parameters=null,$postbody=null,$cached=false)
 	{
 		// append slashes where needed
 		if ($id!='')
@@ -159,6 +161,14 @@ class Slicehost
 		// build the url
 		$url="https://api.slicehost.com/{$path}{$id}{$action}.xml";
 		
+		if ($cached)
+		{
+			if (isset(self::$_cache[$url]))
+			{
+				return self::$_cache[$url];
+			}
+		}
+
 		// create a request
 		$request=new HTTP_Request($url);
 
@@ -193,7 +203,9 @@ class Slicehost
 			case 200:
 			case 201:
 			case 204:
-				return $this->build_response($request->getResponseBody());
+				$result=$this->build_response($request->getResponseBody());
+				self::$_cache[$url]=$result;
+				return $result;
 			default:
 				throw new SlicehostException("$url.\nResponse Code $repcode.\n\n{$request->getResponseBody()}\n\n");
 		}
@@ -214,6 +226,7 @@ class Slicehost
 			case 'flavors':
 			case 'images':
 			case 'backups':
+				return $this->request($key,null,null,'GET',null,null,true);
 			case 'slices':
 				return $this->request($key);
 			default:

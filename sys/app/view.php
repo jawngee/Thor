@@ -67,7 +67,7 @@
  	 * 
  	 * @param string $rendered The view's rendered output that may contain control or uses tags
  	 */
- 	protected function parse_layout(&$rendered)
+ 	protected function parse_layout(&$rendered,$subview=false)
  	{
 		// extract php control includes
 		$regex = '#<[\s]*uses[\s]*:[\s]*layout([^>]*?)[\s]*/[\s]*>#is';					// extracts the tag
@@ -107,7 +107,7 @@
  			// we matched, so remove it from the rendered view
  			$rendered=str_replace($matched[0][0],'',$rendered);
 
-			if ($layout!=null)
+			if ((!$subview) && ($layout!=null))
 			{
  				uses("app.layout.$layout");
 	 			if (class_exists(str_replace('_','',$layout).'Layout'))
@@ -137,7 +137,6 @@
  		{
 			$parsed_attr=array();
 			preg_match_all(View::REGEX_ATTRIBUTE,$matches[1][0],$parsed_attr,PREG_SET_ORDER);
-			
 			$view=null;
 			$target=null;
 			foreach($parsed_attr as $attr)
@@ -167,7 +166,8 @@
 
 			if ($view!=null)
 			{
-				$v=new View($this->parent,$view);
+				$v=new View($view);
+				
 				$result=$v->render($this->data,true);
 				
 				if (($this->layout!=null) && ($target!=null))
@@ -341,10 +341,7 @@
  		$this->data['layout']=$this;
  		$result=render_view($this->base_path.$this->view,$this->data);
 
- 		if ($subview==false)
- 			$this->parse_layout($result);
- 		
- 			
+		$this->parse_layout($result,$subview);
  		$this->parse_includes($result);
  		$this->parse_subviews($result);
  		$this->parse_other_tags($result);
