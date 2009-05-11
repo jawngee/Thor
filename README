@@ -1,0 +1,26 @@
+Slicehost Manager
+
+This is a PHP application that allows you to easily manage your Slicehost servers.
+
+Installation
+
+- Unzip to a directory
+- Use the included apache.conf file (tweak)
+- Edit /app/conf/slicehost.js.CHANGEME - follow directions contained within
+- Give it a spin
+
+Currently only basic functionaliy is offered and this entire thing is a huge
+moving target.
+
+You can create "server configuration profiles" to build one click deployments.
+
+BECAREFUL!  DO NOT BLAME ME IF YOU HOSE YOUR SLICEHOST SERVERS WITH THIS
+TOOL.
+
+Todo:
+
+- Add a database backend
+- Add deployment hooks for running scripts after a succesfull slice creation
+
+
+Any questions, problems, please use the issues or wiki pages on Github.
