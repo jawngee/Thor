@@ -32,7 +32,7 @@
 *
 */
 
-uses('sys.view');
+uses('sys.app.view');
 
 /**
  * Layout for rendering the layout page with a controller.

@@ -36,7 +36,7 @@
  * Wraps input (get, post) from the incoming request and acts as a filter.
  */
  
-uses('sys.upload');
+uses('sys.request.upload');
 
 /**
  * Input filter class

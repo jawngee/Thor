@@ -42,8 +42,8 @@
  * @copyright  	2007 Massify LLC
  */
 
-uses('sys.encrypt');
-uses('sys.config');
+uses('sys.utility.encrypt');
+uses('sys.app.config');
 
 /**
  * Stores session data in encrypted cookie.

@@ -37,9 +37,9 @@
  * Abstract controller class for all application controllers.
  */
 
-uses('sys.input');
-uses('sys.session');
-uses('sys.uri');
+uses('sys.request.input');
+uses('sys.app.session');
+uses('sys.request.uri');
 
 /**
  * Abstract controller class inherited by all application controllers.

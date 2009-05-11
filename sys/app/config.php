@@ -46,6 +46,13 @@
  	/** Static array of preloaded configurations */
  	private static $_configs=array();
  	
+ 	/** Global environment configuration */
+ 	public static $environment_config=null;
+ 	
+ 	/** Global environment configuration */
+ 	public static $environment='';
+ 	
+ 	
  	/**
  	 * Constructor
  	 */
@@ -80,6 +87,8 @@
  		{
  			$filename=PATH_CONFIG.$what;
  			
+ 			$data=null;
+ 			
  			if (file_exists($filename.'.js'))
 				$data=json_decode(file_get_contents($filename.'.js'),true);
 			else if (file_exists($filename.'.conf'))
@@ -90,7 +99,7 @@
 				$data = include($filename.$ext);
 				ob_get_clean();
 			}
-
+			
 			if (!is_array($data))
 				throw new Exception("Invalid Config File '$what'.");
  			
@@ -98,6 +107,59 @@
  			self::$_configs[$what]=$conf;
  			
  			return $conf;
+ 		}
+ 	}
+ 
+  	
+ 	/** 
+ 	 * Loads a specific environment, or the default one specified in the .conf
+ 	 * 
+ 	 * @param string $env The environment to load
+ 	 */
+ 	public static function LoadEnvironment($env=null)
+ 	{
+ 		$config=Config::Get('environment');
+ 		
+ 		if ($env==null)
+ 			$env=$config->environment;
+		
+		self::$environment=$env;
+		
+ 		if ($config->{$env}!=null)
+ 		{
+ 			self::$environment_config=$config->{$env};
+ 			
+ 			// if in debug, load the developer's custom environment and merge it.
+ 			if ($env=='debug')
+			{
+				try
+				{
+					$your_config=Config::Get('environment.user');
+					
+					foreach($your_config->items as $key=>$custom)
+						if (isset(self::$environment_config->items[$key]))
+							foreach($custom->items as $k => $v)
+								self::$environment_config->items[$key]->items[$k]=$v;
+						else
+							self::$environment_config->items[$key]=$custom;
+				} 
+				catch (Exception $ex)
+				{
+					// do nothing, means your_environment doesn't exist.	
+				}
+			}
+			
+ 			if (self::$environment_config->defines!=null)
+ 				foreach(self::$environment_config->defines->items as $key => $value)
+ 				{
+ 					define($key,$value);
+ 				}
+
+ 			if (self::$environment_config->uses!=null)
+ 				foreach(self::$environment_config->uses->items as $item)
+ 					uses($item);
+ 					
+ 			define('ENVIRONMENT',$env);
  		}
  	}
  }

@@ -32,7 +32,7 @@
 *
 */
 
-uses('sys.config');
+uses('sys.app.config');
 
 /**
  * Provides two-way keyed encoding using XOR Hashing and Mcrypt

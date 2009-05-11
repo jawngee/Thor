@@ -12,5 +12,7 @@
 
 	<body>
 		<layout:content id="main" />
+
+		<? Profiler::Display() ?>
 	</body>
 </html>

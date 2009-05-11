@@ -37,7 +37,7 @@
  * things as pagination, etc.
  */
 
-uses('sys.query');
+uses('sys.request.query');
 
 /**
  * URI

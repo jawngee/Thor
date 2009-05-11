@@ -32,9 +32,9 @@
 *
 */
 
-uses('sys.controller');
-uses('sys.view');
-uses('sys.layout');
+uses('sys.app.controller');
+uses('sys.app.view');
+uses('sys.app.layout');
 
 class Dispatcher
 {
