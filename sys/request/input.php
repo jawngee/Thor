@@ -55,7 +55,7 @@ final class Input implements Iterator
 	 * 
 	 * @param array $data Input data array.
 	 */
-	protected function __construct(&$data)
+	public function __construct(&$data)
 	{
 		$this->_data=&$data;
 	}

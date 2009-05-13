@@ -41,7 +41,7 @@ class Dispatcher
 	/**
 	 * Recursively parses uri segments to find a file match
 	 */
-	private static function RecurseSegment(& $segments, & $result)
+	private static function RecurseSegment(&$segments, &$result)
 	{
 		if ((count($segments) > 0) && (file_exists($result['root'] . $result['path'] . $segments[0] . EXT)))
 		{
@@ -75,11 +75,21 @@ class Dispatcher
 	/**
 	 * Determines path to controller from uri segments
 	 */
-	private static function ParseURI()
+	public static function ParseURI(&$path, $root, $use_routes=true)
 	{
-		// fetch the path
-		$path = (isset ($_SERVER['PATH_INFO'])) ? $_SERVER['PATH_INFO'] : @ getenv('PATH_INFO');
-		$path = rtrim(strtolower($path), '/');
+		if ($use_routes)
+		{
+			$routes=Config::Get('routes');
+			$route=(isset($routes->items['default'])) ? $routes->items['default'] : '';
+		
+			if ($route)
+				foreach($route->items as $key => $val)
+					if (preg_match('#^'.$key.'$#', $path))
+					{
+						$path=preg_replace('#^'.$key.'$#',$val,$path);
+						break;
+					}
+		}
 		
 		// explode it's segments
 		$path_array = explode('/', preg_replace('|/*(.+?)/*$|', '\\1', $path));
@@ -92,7 +102,7 @@ class Dispatcher
 		{
 			// set the controller and method
 			return array (
-				'root' => PATH_APP.'controller/',
+				'root' => $root.'/',
 				'path' => '',
 				'controller' => 'index',
 				'method' => 'index',
@@ -116,7 +126,7 @@ class Dispatcher
 		}
 
 		// setup the parsed uri result
-		$result['root'] = PATH_APP.'controller';
+		$result['root'] = $root;
 		$result['path'] = '';
 		$result['controller'] = 'index';
 		$result['method'] = 'index';
@@ -151,15 +161,17 @@ class Dispatcher
 	}	
 	
 	/**
-	 * Dispatches the current request.
+	 * Executes a controller, returning the data
+	 *
+	 * @param unknown_type $path
 	 */
-	public static function Dispatch()
+	public static function Call(&$path, $root, &$parsed_uri)
 	{
-		$parsed_uri=self::ParseURI();
+		$data = array(); // any data to return to the view from the controller
 		
-		Profiler::Log($parsed_uri);
+		$parsed_uri=self::ParseURI($path, $root);
 		
-		uses('app.controller.'.$parsed_uri['controller']);
+		require_once($parsed_uri['root'].$parsed_uri['controller'].EXT);
 		$classname=$parsed_uri['controller'].'Controller';
 		
 		if (!class_exists($classname))
@@ -170,8 +182,10 @@ class Dispatcher
 			$reqmethod=$_REQUEST['real_method'];
 		else if (isset($_SERVER['HTTP_X_AJAX_REAL_METHOD']))
 			$reqmethod=$_SERVER['HTTP_X_AJAX_REAL_METHOD'] ;
-		else
+		else if (isset($_SERVER['REQUEST_METHOD']))
 			$reqmethod=$_SERVER['REQUEST_METHOD'];
+		else
+			$reqmethod="POST";
 			
 		$reqmethod=strtoupper($reqmethod);
 			
@@ -206,15 +220,24 @@ class Dispatcher
 		$data['controller']=&$class;
 		$data['session']=&$class->session;
 		
-		// TODO: Clean this up, support more types such as mobile, etc.
-		$req_type=(isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? 'ajax' : 'html');
-		
-		if (isset($_SERVER['HTTP_X_RENDER_PARTIAL']))
-			$req_type='html';
-		
-		if ($req_type=='html')
-			$req_type=(preg_match('#iPhone#',$_SERVER['HTTP_USER_AGENT'])) ? 'iphone' : $req_type;
+		return $data;
+	}
+
+	
+	public static function Render($root, &$parsed_uri, &$data, $req_type=null)
+	{
+		if ($req_type==null)
+		{
+			// TODO: Clean this up, support more types such as mobile, etc.
+			$req_type=(isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? 'ajax' : 'html');
 			
+			if (isset($_SERVER['HTTP_X_RENDER_PARTIAL']))
+				$req_type='html';
+			
+			if ($req_type=='html')
+				$req_type=(preg_match('#iPhone#',$_SERVER['HTTP_USER_AGENT'])) ? 'iphone' : $req_type;
+		}
+				
 		$view_name=strtolower($parsed_uri['path'].$parsed_uri['controller'].'/'.$parsed_uri['method']);
 		Profiler::Log($view_name);
 		
@@ -246,23 +269,42 @@ class Dispatcher
 				header("Content-type: text/javascript");
 		}		
 					
-		$view_found=file_exists(PATH_APP.'view/'.$view_name.'.'.$req_type.EXT);
+		$view_found=file_exists($root.$view_name.'.'.$req_type.EXT);
 		
-		if ((!$view_found) && ($req_type!='html') && (file_exists(PATH_APP.'view/'.$view_name.'.html'.EXT)))
+		if ((!$view_found) && ($req_type!='html') && (file_exists($root.$view_name.'.html'.EXT)))
 		{
 			$req_type='html';
 			$view_found=true;
 		}
 			
 		if (($view_found==false) && ($req_type!='ajax'))
-			throw new Exception("Could not find view ".PATH_APP."views/$view_name");
+			throw new Exception("Could not find view ".$root."$view_name");
 							
 		if ($view_found)
 		{	
 			Profiler::Log($view_name.'.'.$req_type);
-			$view=new View($view_name.'.'.$req_type);
+			$view=new View($root,$view_name.'.'.$req_type);
 			
 			print $view->render($data);
+		}		
+	}
+	
+	/**
+	 * Dispatches the current request.
+	 */
+	public static function Dispatch($path,$controller_root,$view_root,$req_type=null)
+	{
+		// fetch the path
+		if ($path==null)
+		{
+			$path = (isset ($_SERVER['PATH_INFO'])) ? $_SERVER['PATH_INFO'] : @ getenv('PATH_INFO');
+			$path = rtrim(strtolower($path), '/');
 		}
+		
+		$parsed_uri=array();
+		
+		$data=self::Call($path,$controller_root,$parsed_uri);
+
+		self::Render($view_root,$parsed_uri,$data,$req_type);
 	}
 }

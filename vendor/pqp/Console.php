@@ -25,7 +25,11 @@ class Console {
 			"type" => 'log'
 		);
 		$GLOBALS['debugger_logs']['console'][] = $logItem;
-		$GLOBALS['debugger_logs']['logCount'] += 1;
+		
+		if (!isset($GLOBALS['debugger_logs']['logCount']))
+			$GLOBALS['debugger_logs']['logCount'] = 1;
+		else
+			$GLOBALS['debugger_logs']['logCount'] += 1;
 	}
 	
 	/*---------------------------------------------------

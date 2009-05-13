@@ -1,0 +1,1 @@
+{"help\/register":{"title":"Register Command","parameters":[{"name":"command","type":"string","optional":false,"description":"The name of the command."}],"switches":[{"name":"Resets","type":"clean","description":"the configuration file."}],"description":"Registers a command with the help system"}}

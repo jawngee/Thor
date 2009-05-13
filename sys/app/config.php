@@ -43,6 +43,10 @@
  	/** Array of configuration items */
  	public $items=null;
  	
+ 	private $format=null;
+ 	
+ 	private $filename=null;
+ 	
  	/** Static array of preloaded configurations */
  	private static $_configs=array();
  	
@@ -56,8 +60,10 @@
  	/**
  	 * Constructor
  	 */
- 	public function __construct($config)
+ 	public function __construct($config,$filename=null,$format=null)
  	{
+ 		$this->format=$format;
+ 		$this->filename=$filename;
  		$this->items=$config;
  		
 		foreach($config as $key => $item)
@@ -86,15 +92,23 @@
  		else
  		{
  			$filename=PATH_CONFIG.$what;
+ 			$format=null;
  			
  			$data=null;
  			
  			if (file_exists($filename.'.js'))
+ 			{
+ 				$format="js";
 				$data=json_decode(file_get_contents($filename.'.js'),true);
+ 			}
 			else if (file_exists($filename.'.conf'))
+ 			{
+ 				$format="yaml";
 				$data=syck_load(file_get_contents($filename.'.conf'));
+ 			}
 			else if (file_exists($filename.'.php'))
 			{
+ 				$format="php";
 				ob_start();
 				$data = include($filename.$ext);
 				ob_get_clean();
@@ -103,7 +117,7 @@
 			if (!is_array($data))
 				throw new Exception("Invalid Config File '$what'.");
  			
-			$conf=new Config($data);
+			$conf=new Config($data,$filename,$format);
  			self::$_configs[$what]=$conf;
  			
  			return $conf;
@@ -160,6 +174,21 @@
  					uses($item);
  					
  			define('ENVIRONMENT',$env);
+ 		}
+ 	}
+ 	
+ 	public function save()
+ 	{
+ 		switch($this->format)
+ 		{
+ 			case 'js':
+ 				file_put_contents($this->filename.'.js',json_encode($this->items));
+ 				break;
+ 			case 'yaml':
+ 				file_put_contents($this->filename.'.conf',syck_dump($this->items));
+ 				break;
+ 			default:
+ 				throw new Exception("Invalid format for saving.");
  		}
  	}
  }

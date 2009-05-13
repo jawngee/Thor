@@ -14,7 +14,7 @@ Profiler::Init();
 ob_start();
 
 // dispatch the request
-Dispatcher::Dispatch();
+Dispatcher::Dispatch(null,PATH_APP.'controller/', PATH_APP.'view/');
 
 // flush the buffer
 ob_flush();

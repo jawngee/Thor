@@ -1,13 +1,10 @@
 <?
 uses('app.lib.slicehost.slicehost');
+uses('app.lib.controllers.slicehost');
 
-class CreateController extends Controller
+class CreateController extends SlicehostController
 {
 	public function index()
 	{
-		$conf=Config::Get("slicehost");
-		$slicehost=new Slicehost($conf->key);
-		return array(
-		);
 	}
 }

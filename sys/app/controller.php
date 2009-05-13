@@ -80,8 +80,6 @@ uses('sys.request.uri');
 	 */
  	public function __construct($root,$segments)
  	{
- 		$this->method=$_SERVER['REQUEST_METHOD'];
- 		
  		$this->session=Session::Get();
  		
  		$this->uri=new URI($root,$segments);

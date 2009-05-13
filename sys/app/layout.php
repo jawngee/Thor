@@ -69,9 +69,7 @@ uses('sys.app.view');
  	 */
  	public function __construct($title,$description,$view)
  	{
- 		parent::__construct($view);
- 		
-		$this->base_path=PATH_APP.'layout/';
+ 		parent::__construct(PATH_APP.'layout/',$view);
  		
  		$this->title=$title;
  		$this->description=$description;

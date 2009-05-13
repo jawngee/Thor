@@ -1,18 +1,9 @@
 <?
 uses('app.lib.slicehost.slicehost');
+uses('app.lib.controllers.slicehost');
 
-class SlicesController extends Controller
+class SlicesController extends SlicehostController
 {
-	var $slicehost=null;
-	
-	public function setup()
-	{
-		parent::setup();
-		
-		$conf=Config::Get("slicehost");
-		$this->slicehost=new Slicehost($conf->key);
-	}
-	
 	public function put_index($id)
 	{
 		$slice=new SliceResource($this->slicehost,$id);

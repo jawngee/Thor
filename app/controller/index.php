@@ -1,13 +1,11 @@
 <?
 uses('app.lib.slicehost.slicehost');
+uses('app.lib.controllers.slicehost');
 
-class IndexController extends Controller
+class IndexController extends SlicehostController
 {
 	public function index()
 	{
-		$conf=Config::Get("slicehost");
-		$slicehost=new Slicehost($conf->key);
-		
 		
 		$data=PATH_APP.'data/inventory.data';
 		
@@ -16,7 +14,7 @@ class IndexController extends Controller
 			$slices=unserialize(file_get_contents($data));
 		else
 		{
-			$slices=$slicehost->slices;
+			$slices=$this->slicehost->slices;
 			file_put_contents($data,serialize($slices));
 		}
 		

@@ -56,10 +56,10 @@
  	 * 
  	 * @param string $view The view to use for this layout
  	 */
- 	public function __construct($view)
+ 	public function __construct($root,$view)
  	{
 		$this->view=$view;
-		$this->base_path=PATH_APP.'view/';
+		$this->base_path=$root;
  	}
  	
  	/**
@@ -166,7 +166,7 @@
 
 			if ($view!=null)
 			{
-				$v=new View($view);
+				$v=new View(PATH_APP.'view/',$view);
 				
 				$result=$v->render($this->data,true);
 				
