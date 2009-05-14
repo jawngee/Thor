@@ -13,7 +13,7 @@
 
 - - - - - - - - - - - - - - - - - - - - - */
 
-class Console {
+class PQPConsole {
 	
 	/*-----------------------------------
 	     LOG A VARIABLE TO CONSOLE

@@ -10,28 +10,22 @@ uses('sys.app.dispatcher');
 uses('sys.utility.profiler');
 
 define('SHELL_SCRIPT',array_pop(explode('/',__FILE__)));
+ini_set('error_reporting',E_ERROR);
+		
+
 
 Config::LoadEnvironment();
-
-Profiler::Init();
 
 $args=parse_args();
 
 if (count($args)>0)
-{
-	$path=$args[0];
-	
-	array_shift($args);
-	
 	$path='/'.implode('/',$args);
-}
 else
 	$path="/help";
 	
 $switches=parse_switches();
 foreach($switches as $key=>$value)
 	$_POST[$key]=$value;
-			
 			
 // start buffering
 ob_start();

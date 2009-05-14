@@ -221,6 +221,24 @@ function get_cookie($index = '', $xss_clean = FALSE)
 		return $_COOKIE[$index];
 }
 
+function get_view($view)
+{
+	return preg_replace("|{{([^}]*)}}|m",'<?=$1?>',file_get_contents($view.EXT));
+}
+
+function render_fragment($fragment, &$data)
+{
+  	if ($data!=null)
+		extract($data);
+
+	ob_start();		
+	eval("?>".$fragment);
+	$result=ob_get_contents();
+	ob_end_clean();
+	
+	return $result;
+}
+
 /**
  * Renders a view
  * 
@@ -228,18 +246,10 @@ function get_cookie($index = '', $xss_clean = FALSE)
  * @param array $data The data to pass into the view
  * @return string The rendered view
  */
-function render_view($view,$data=null)
+function render_view($view,&$data)
 {
-  	if ($data!=null)
-		extract($data);
-
-	$contents=preg_replace("|{{([^}]*)}}|m",'<?=$1?>',file_get_contents($view.EXT));
-
-	ob_start();		
-	eval("?>".$contents);
-	$result=ob_get_contents();
-	ob_end_clean();
-	return $result;
+	$contents=get_view($view);
+	return render_fragment($contents,$data);
 }
 
 /**

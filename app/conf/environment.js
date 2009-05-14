@@ -4,7 +4,7 @@
 	"debug":
 	{
 		"localcache": "none",
-		"profiler": "pqp"
+		"profiler": "none"
 	},
 	"production":
 	{

@@ -33,8 +33,10 @@ class ConfigsController extends SlicehostController
 		
 		if (isset($configs[$id]))
 		{
-			$configs[$id]->create();
-			redirect('/?refresh');
+			$slice=$configs[$id]->create();
+			return array(
+				'slice' => $slice
+			);
 		}
 	
 		redirect('/configs');
@@ -61,28 +63,21 @@ class ConfigsController extends SlicehostController
 		if (!$this->post->name)
 			$errors['name']='Name is required.';
 			
-		if (($this->post->image_id==$this->post->backup_id) || (($this->post->image_id!='none')&&($this->post->backup_id!='none')))
-		{ 
-			$errors['image_id']='Please select an image or a backup.';
-			$errors['backup_id']='Please select an image or a backup.';
-		}
-		
+		if ((!$this->post->image_id) || ($this->post->image_id=='none'))
+			$errors['image_id']='Please select an image.';
+			
 		if (count($errors)==0)
 		{
 			$c=new SliceConfiguration();
 			$c->name=$this->post->name;
 			
-			$c->image_desc='None';
-			if ($this->post->image_id!='none')
-			{
-				$c->image_id=$this->post->image_id;
-				foreach($images as $image)
-					if ($image->id==$this->post->image_id)
-					{
-						$c->image_desc=$image->name;
-						break;
-					}
-			}
+			$c->image_id=$this->post->image_id;
+			foreach($images as $image)
+				if ($image->id==$this->post->image_id)
+				{
+					$c->image_desc=$image->name;
+					break;
+				}
 			
 			$c->backup_desc='None';
 			

@@ -50,7 +50,7 @@ class SliceConfiguration
 		
 		$slice=new SliceResource($s);
 		
-		$slice->name=($name!=null) ? $name : $this->name.' '.microtime(true);
+		$slice->name=($name!=null) ? $name : $this->name.'-copy';
 		if ($this->image_id)
 			$slice->image_id=$this->image_id;
 		else if ($this->backup_id)

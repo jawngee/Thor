@@ -22,7 +22,8 @@
 			</div>
 			<div id="nav">
 				<ul>
-					<li {{ ($loc=='') ? 'class="selected"' : '' }}><a href="/">Inventory</a></li>
+					<li {{ ($loc=='') ? 'class="selected"' : '' }}><a href="/">Dashboard</a></li>
+					<li {{ ($loc=='slices') ? 'class="selected"' : '' }}><a href="/slices">Slices</a></li>
 					<li {{ ($loc=='configs') ? 'class="selected"' : '' }}><a href="/configs">Slice Configurations</a></li>
 					<li {{ ($loc=='create') ? 'class="selected"' : '' }}><a href="/create">Create Slice</a></li>
 				</ul>
@@ -30,6 +31,6 @@
 			<layout:content id="main" wrap="div" use_id="true" />
 		</div>
 		
-		<? if (!$_GET['noprofiler']) Profiler::Display(); ?>
+		<? if (!isset($_GET['noprofiler'])) Profiler::Display(); ?>
 	</body>
 </html>

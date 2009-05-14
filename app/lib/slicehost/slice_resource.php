@@ -83,7 +83,7 @@ class SliceResource extends SlicehostResourceBase
 		//
 		// Apparently there is another way, but I couldn't get it to work for shit.
 		//
-		if ($this->_props['image_id'])
+		if (isset($this->_props['image_id']))
 		{
 			$r=<<<RDOC
 <?xml version="1.0" encoding="UTF-8"?>
@@ -101,7 +101,8 @@ RDOC;
 <?xml version="1.0" encoding="UTF-8"?>
 <slice>
   <name>{$this->_props['name']}</name>
-  <backup_id type="integer">{$this->_props['backup_id']}</backup-id>
+  <image-id type="integer">{$this->_props['image_id']}</image-id>
+  <backup-id type="integer">{$this->_props['backup_id']}</backup-id>
   <flavor-id type="integer">{$this->_props['flavor_id']}</flavor-id>
 </slice>
 RDOC;
@@ -164,7 +165,30 @@ RDOC;
 		else
 			$result=$this->slicehost->request('slices',$this->id,'reboot','put');
 			
-		return $result;
+		// assign the results to our properties.
+		foreach($result as $key=>$value)
+			$this->{$key}=$value;
+			
+		return $this;
+	}
+	
+	public function rebuild($image_id=null,$backup_id=null)
+	{
+		if ((!$image_id) && (!$backup_id))
+			return null;
+			
+		if ($image_id)
+			$parameters=array('image_id'=>$image_id);
+		else 
+			$parameters=array('backup_id'=>$backup_id);
+					
+		$this->slicehost->request('slices',$this->id,'rebuild','put',$parameters);
+		
+		// assign the results to our properties.
+		foreach($result as $key=>$value)
+			$this->{$key}=$value;
+			
+		return $this;
 	}
 	
 	public function __get($key)

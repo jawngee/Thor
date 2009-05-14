@@ -170,6 +170,7 @@ class Dispatcher
 		$data = array(); // any data to return to the view from the controller
 		
 		$parsed_uri=self::ParseURI($path, $root);
+
 		
 		require_once($parsed_uri['root'].$parsed_uri['controller'].EXT);
 		$classname=$parsed_uri['controller'].'Controller';
@@ -239,7 +240,6 @@ class Dispatcher
 		}
 				
 		$view_name=strtolower($parsed_uri['path'].$parsed_uri['controller'].'/'.$parsed_uri['method']);
-		Profiler::Log($view_name);
 		
 		if ($req_type=='ajax')
 		{
@@ -278,7 +278,10 @@ class Dispatcher
 		}
 			
 		if (($view_found==false) && ($req_type!='ajax'))
-			throw new Exception("Could not find view ".$root."$view_name");
+		{
+			trigger_error("Unable to find view '$view_name'.",E_USER_WARNING);
+			return;
+		}
 							
 		if ($view_found)
 		{	

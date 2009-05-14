@@ -23,7 +23,7 @@ class PhpQuickProfiler {
 	public function __construct($startTime, $config = '/pqp/') {
 		$this->startTime = $startTime;
 		$this->config = $config;
-		require_once('Console.php');
+		require_once('PQPConsole.php');
 	}
 	
 	/*-------------------------------------------
@@ -31,7 +31,7 @@ class PhpQuickProfiler {
 	-------------------------------------------*/
 	
 	public function gatherConsoleData() {
-		$logs = Console::getLogs();
+		$logs = PQPConsole::getLogs();
 		if($logs['console']) {
 			foreach($logs['console'] as $key => $log) {
 				if($log['type'] == 'log') {

@@ -12,22 +12,22 @@ class PQPProfiler extends Profiler
 	
 	protected function _log($message)
 	{
-		Console::log($message);
+		PQPConsole::log($message);
 	}
 	
 	protected function _error($exception,$message)
 	{
-		Console::logError($exception,$message);
+		PQPConsole::logError($exception,$message);
 	}
 	
 	protected function _memory($variable, $name)
 	{
-		Console::logMemory($variable,$name);
+		PQPConsole::logMemory($variable,$name);
 	}
 
 	protected function _speed($name)
 	{
-		Console::logSpeed($name);	
+		PQPConsole::logSpeed($name);	
 	}
 	
 	protected function _logQuery($query,$time)

@@ -81,7 +81,6 @@ class SlicehostResourceBase implements ArrayAccess, Iterator
 				else
 					$this->_props[str_replace('-','_',$nodeName)]=(String)$node;
 			}
-			Profiler::Log($this->_props);
 	}
 
 	/**

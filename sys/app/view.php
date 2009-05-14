@@ -214,7 +214,7 @@
  	{
 		// extract helper code
 		$matches=array();
-		$regex="@<[\s]*uses[\s]*:[\s]*helper[\s]*src[\s]*=[\s]*['\"]([^\"']*)['\"][\s]*/[\s]*>@is";
+		$regex="@<[\s]*uses[\s]*:[\s]*helper[\s]*helper[\s]*=[\s]*['\"]([^\"']*)['\"][\s]*\/[\s]*>@is";
  		while(preg_match($regex,$rendered,$matches,PREG_OFFSET_CAPTURE)==1)
  		{
  			uses("app.helper.".$matches[1][0]);
@@ -339,22 +339,28 @@
  			$this->data=array();
  		
  		$this->data['layout']=$this;
- 		$result=render_view($this->base_path.$this->view,$this->data);
+ 		
+ 		$result=get_view($this->base_path.$this->view);
+ 		
+ 		$this->parse_includes($result);
+		
+ 		$result=render_fragment($result,$this->data);
 
 		$this->parse_layout($result,$subview);
- 		$this->parse_includes($result);
  		$this->parse_subviews($result);
  		$this->parse_other_tags($result);
  		$this->parse_targets($result);
  		$this->parse_ajax_tags($result);
+ 		
 
-  		if ($this->layout!=null)
+
+		if ($this->layout!=null)
  		{
  			$this->layout->add_content($this->target,$result);
  			$result=$this->layout->render($data);
  			
  		}
-	
+ 		
  		return $result;
  	}
  }
