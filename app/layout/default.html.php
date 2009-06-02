@@ -17,15 +17,14 @@
 	<body>
 		<div id="container">
 			<div id="header">
-				Slicehost Manager
+				<img src="/i/logo.png" />
 				<a href="https://manage.slicehost.com" target="_blank">Slicehost.com</a>
 			</div>
 			<div id="nav">
 				<ul>
 					<li {{ ($loc=='') ? 'class="selected"' : '' }}><a href="/">Dashboard</a></li>
-					<li {{ ($loc=='slices') ? 'class="selected"' : '' }}><a href="/slices">Slices</a></li>
-					<li {{ ($loc=='configs') ? 'class="selected"' : '' }}><a href="/configs">Slice Configurations</a></li>
-					<li {{ ($loc=='create') ? 'class="selected"' : '' }}><a href="/create">Create Slice</a></li>
+					<li {{ ($loc=='slices') ? 'class="selected"' : '' }}><a href="/slices">Clouds</a></li>
+					<li {{ ($loc=='configs') ? 'class="selected"' : '' }}><a href="/configs">Configurations</a></li>
 				</ul>
 			</div>
 			<layout:content id="main" wrap="div" use_id="true" />

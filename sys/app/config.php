@@ -56,6 +56,8 @@
  	/** Global environment configuration */
  	public static $environment='';
  	
+ 	/** Config map */
+ 	private static $_config_map=array();
  	
  	/**
  	 * Constructor
@@ -86,7 +88,11 @@
 	 * @param string $what The name of the configuration to load.
 	 */
  	public static function Get($what)
+	
  	{	
+ 		if (isset(self::$_config_map[$what])) 
+ 			$what=self::$_config_map[$what];
+ 			
  		if (isset(self::$_configs[$what]))
  			return self::$_configs[$what];
  		else
@@ -172,6 +178,9 @@
  			if (self::$environment_config->uses!=null)
  				foreach(self::$environment_config->uses->items as $item)
  					uses($item);
+ 					
+ 			if (self::$environment_config->config_map!=null)
+ 				self::$_config_map=self::$environment_config->config_map->items;
  					
  			define('ENVIRONMENT',$env);
  		}

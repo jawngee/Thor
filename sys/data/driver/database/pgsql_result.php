@@ -32,66 +32,69 @@
 *
 */
 
-abstract class Profiler
+/**
+ * Wraps a postgresql resultset for streaming through iterating
+ */
+class PGSQLResult implements Iterator
 {
-	private static $_profiler=null;
+	private $result=null;
 	
-	public static function Init()
+	private $cindex=0;
+	
+	private $last=null;
+	
+	public $count=0;
+	
+	public function __construct($result)
 	{
-		$profiler=Config::$environment_config->profiler;
-		if ((self::$_profiler==null) && ($profiler!=null) && ($profiler!="none")) 
-		{
-			uses('sys.utility.profilers.'.$profiler);
-			
-			$class=$profiler."Profiler";
-			self::$_profiler=new $class();
-		}
+		$this->result=$result;
+		$this->count=pg_num_rows($result);
 	}
 	
-	public static function Log($message)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_log($message);
-	}
-	
-	public static function Error($exception,$message)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_error($exception,$message);
-	}
-	
-	public static function Memory($variable, $name)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_memory($variable,$name);
-	}
+	/**
+	 * Iterator impl.
+	 */
+    public function key()
+    {
+        return $this->cindex;
+    }
 
-	public static function Speed($name)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_speed($name);
-	}
-	
-	public static function LogQuery($query,$time)
-	{
-		
-	}
-	
-	public static function Display()
-	{
-		if (self::$_profiler)
-			return self::$_profiler->_display();
-	}
+	/**
+	 * Iterator impl.
+	 */
+    public function current()
+    {
+    	return $this->last;
+    }
 
-	protected abstract function _log($message);
-	
-	protected abstract function _error($exception, $message);
+	/**
+	 * Iterator impl.
+	 */
+    public function next()
+    {
+    	$this->last=pg_fetch_assoc($this->result);
+    	
+    	if (!$this->last)
+    		$this->cindex++;
+    	return $this->last;
+    }
 
-	protected abstract function _memory($variable, $name);
+	/**
+	 * Iterator impl.
+	 */
+    public function rewind()
+    {
+    	$this->cindex=0;
+    	pg_result_seek($this->result,0);
+    	$this->last=pg_fetch_assoc($this->result);
+    	return $this->last;
+    }
 
-	protected abstract function _speed($name);
-	
-	protected abstract function _logQuery($query,$time);
-	
-	protected abstract function _display();
+	/**
+	 * Iterator impl.
+	 */
+    public function valid()
+    {
+        return ($this->last!=null);
+    }	
 }

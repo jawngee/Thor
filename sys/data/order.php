@@ -32,66 +32,50 @@
 *
 */
 
-abstract class Profiler
+
+/**
+ * Contains a sort order for a filter
+ */
+class Order
 {
-	private static $_profiler=null;
+	public $field;				/** Name of the field being sorted on */
+	public $direction='ASC';	/** Direction of the sort */
+	public $is_not_null=false;		/** Determines if this column is sorted when not null, used to flip null ordering in postgresql */
+	public $computed=false;
+	public $filter=null;
 	
-	public static function Init()
+	/**
+	 * Constructor
+	 * 
+	 * @param string $field Name of the field being sorted on
+	 */
+	public function __construct($filter,$field,$computed=false)
 	{
-		$profiler=Config::$environment_config->profiler;
-		if ((self::$_profiler==null) && ($profiler!=null) && ($profiler!="none")) 
-		{
-			uses('sys.utility.profilers.'.$profiler);
-			
-			$class=$profiler."Profiler";
-			self::$_profiler=new $class();
-		}
-	}
-	
-	public static function Log($message)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_log($message);
-	}
-	
-	public static function Error($exception,$message)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_error($exception,$message);
-	}
-	
-	public static function Memory($variable, $name)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_memory($variable,$name);
+		$this->filter=$filter;
+		$this->field=$field;
+		$this->computed=$computed;
 	}
 
-	public static function Speed($name)
-	{
-		if (self::$_profiler)
-			self::$_profiler->_speed($name);
-	}
-	
-	public static function LogQuery($query,$time)
-	{
-		
-	}
-	
-	public static function Display()
-	{
-		if (self::$_profiler)
-			return self::$_profiler->_display();
-	}
-
-	protected abstract function _log($message);
-	
-	protected abstract function _error($exception, $message);
-
-	protected abstract function _memory($variable, $name);
-
-	protected abstract function _speed($name);
-	
-	protected abstract function _logQuery($query,$time);
-	
-	protected abstract function _display();
+	/**
+	 * Overridden magic method.  Allows the properties 'asc' and 'desc' to be "retrieved".  When they are
+	 * requested as properties, they set the direction state of the object.
+	 */
+   	function __get($prop_name)
+   	{
+   		if ($prop_name=='not_null')
+   		{
+   			$this->is_not_null=true;
+   			return $this;
+   		}
+   		else if ($prop_name=='asc')
+   			$this->direction='ASC';
+   		else if ($prop_name=='desc')
+   			$this->direction='DESC';
+   		else
+   			throw new ModelException("Field '$prop_name' is an unknown sort order.");
+   		
+   		return $this->filter;
+   	}
 }
+
+ 

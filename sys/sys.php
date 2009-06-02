@@ -71,6 +71,9 @@ function uses($what)
 		case 'vendor':
 			$path=PATH_VENDOR;
 			break;
+		case 'model':
+			$path=PATH_APP.'model/';
+			break;
 	}
 	
 	

@@ -6,6 +6,15 @@
 		"localcache": "none",
 		"profiler": "none"
 	},
+	"test":
+	{
+		"config_map":
+		{
+			"db": "db/test"
+		},
+		"localcache": "none",
+		"profiler": "none"
+	},
 	"production":
 	{
 		"localcache": "apc",
