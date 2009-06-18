@@ -171,8 +171,7 @@ class Dispatcher
 		
 		$parsed_uri=self::ParseURI($path, $root);
 
-		
-		require_once($parsed_uri['root'].$parsed_uri['controller'].EXT);
+		require_once($parsed_uri['root'].$parsed_uri['path'].$parsed_uri['controller'].EXT);
 		$classname=$parsed_uri['controller'].'Controller';
 		
 		if (!class_exists($classname))
@@ -209,7 +208,7 @@ class Dispatcher
 		}
 				
 		$parsed_uri['method']=$method;
-
+		
 		if ((isset ($class->ignored)) && (in_array($method, $class->ignored)))
 			throw new Exception("Ignored method called.");
 						
@@ -286,7 +285,7 @@ class Dispatcher
 		if ($view_found)
 		{	
 			Profiler::Log($view_name.'.'.$req_type);
-			$view=new View($root,$view_name.'.'.$req_type);
+			$view=new View($root,$view_name.'.'.$req_type,$data['controller']);
 			
 			print $view->render($data);
 		}		

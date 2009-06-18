@@ -1,5 +1,5 @@
 create schema provider;
-go
+--go
 
 -- 
 -- Holds information about cloud providers, eg slicehost, amazon, etc.
@@ -17,7 +17,7 @@ create table provider.provider (
 
 -- we only support slicehost at the moment
 insert into provider.provider values (1,'slicehost','Slicehost','http://slicehost.com/','https://manage.slicehost.com/',null);
-go
+--go
 
 --
 -- Account details for a specific provider.  We have a use case for multiple accounts per
@@ -34,7 +34,7 @@ create table provider.account (
     secret varchar,
     created timestamp without time zone default now()
 );
-go
+--go
 
 
 --
@@ -51,13 +51,15 @@ insert into provider.server_type values (1,'Load Balancer');
 insert into provider.server_type values (2,'Database');
 insert into provider.server_type values (3,'Web');
 insert into provider.server_type values (4,'Cache');
-go
+
+--go
 
 
 -- 
 -- Lookup table for server status
 --
 
+--drop table provider.server_status;
 create table provider.server_status (
     id int not null primary key unique,
     status varchar not null
@@ -67,23 +69,27 @@ insert into provider.server_status values (0,'Running');
 insert into provider.server_status values (1,'Building');
 insert into provider.server_status values (2,'Rebooting');
 insert into provider.server_status values (3,'Stopped');
-go
+
+--go
 
 
 --
 -- Table for holding the ssh keys
 --
 
-drop table provider.keys;
+--drop table provider.keys;
 create table provider.keys (
     id serial not null primary key unique,
+    account_id int not null,
     text_id varchar not null unique,
     name varchar not null,
     notes text,
-    filename varchar,
+    public_filename varchar,
+    private_filename varchar,
     created timestamp without time zone default now()
 );
-go
+
+--go
 
 
 --
@@ -111,7 +117,8 @@ create table provider.inventory (
     driver_data text,
     created timestamp without time zone default now()
 );
-go
+
+--go
 
 --
 -- Some providers offer multiple addresses.  Note that some of these will not be ip address but domains.
@@ -126,7 +133,8 @@ create table provider.ipaddress
     address varchar not null,
     created timestamp without time zone default now()
 );
-go
+
+--go
 
 
 --
@@ -134,14 +142,15 @@ go
 --
 
 create schema sky;
-go
+
+--go
 
 
 --
 -- Logical groupings of inventory
 --
 
-drop table sky.cloud;
+--drop table sky.cloud;
 create table sky.cloud
 (
     id serial not null primary key unique,
@@ -150,18 +159,32 @@ create table sky.cloud
     notes text,
     created timestamp without time zone default now()
 );
-go
 
+--go
 
 --
 -- Inventory belonging to the cloud
 --
 
-drop table sky.cloud_inventory;
+--drop table sky.cloud_inventory;
 create table sky.cloud_inventory
 (
     id serial not null primary key unique,
     cloud_id int not null,
     inventory_id int not null
 );
-go
+
+--go
+
+--
+-- Foreign key constraints
+--
+
+alter table provider.account add constraint account_provider_id_fkey foreign key (provider_id) references provider.provider(id) on delete cascade;
+alter table provider.inventory add constraint inventory_account_id_fkey foreign key (account_id) references provider.account(id) on delete cascade;
+alter table provider.ipaddress add constraint ipaddress_inventory_id_fkey foreign key (inventory_id) references provider.inventory(id) on delete cascade;
+alter table provider.keys add constraint keys_account_id_fkey foreign key (account_id) references provider.account(id) on delete cascade;
+
+--go
+
+

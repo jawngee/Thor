@@ -1,3 +1,3 @@
 {
-    "default":"pgsql://postgres@192.168.3.3/massify_test"
+    "default":"pgsql://postgres@jon.massifycorp.com/thor"
 }

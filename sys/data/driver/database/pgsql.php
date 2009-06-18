@@ -71,7 +71,7 @@ class PGSQLDatabase extends Database
 			
 		$this->connection=pg_connect($this->connstr);
 		if (!$this->connection)
-			throw new DatabaseExeception("Invalid database settings.");
+			throw new DatabaseException("Invalid database settings.");
     }
 
 
@@ -93,7 +93,8 @@ class PGSQLDatabase extends Database
     public function insert($table_name,$key,$fields)
     {
     	// extract the keys and values so we can build a prepared statement.
-    	$keys=array_keys($fields);
+
+	$keys=array_keys($fields);
     	$vals=array_values($fields);
     	
     	$sql="insert into $table_name (".implode(',',$keys).") values (";
@@ -166,7 +167,12 @@ class PGSQLDatabase extends Database
     	if ($limit)
     		$query.=" LIMIT $limit";
     		
-    	return new PGSQLResult(pg_query($this->connection,$query));
+    	$res=pg_query($this->connection,$query);
+    	
+    	if (!$res)
+    		throw new DatabaseException(pg_last_error($this->connection));
+    	
+    	return new PGSQLResult($res);
     }
 
 	/**
@@ -176,7 +182,7 @@ class PGSQLDatabase extends Database
 	 * @param string $table_name
 	 * @param string $where
 	 */
-	public function count($table_name,$key,$where=null,$distinct=false)
+	public function count($key,$table_name,$where=null,$distinct=false)
 	{
 		$d=($distinct) ? 'distinct' : '';
 		
@@ -265,7 +271,7 @@ class PGSQLDatabase extends Database
 		
    		$value=str_replace("'","''",$value);
 		
-		switch($this->type)
+		switch($type)
 		{
 			case Field::STRING:
 			case Field::TEXT:
@@ -326,5 +332,45 @@ class PGSQLDatabase extends Database
 		
 		return 'ARRAY['.trim($result,',').']';
 	}
-   
+
+	/**
+	 * Returns the schemas in the database.
+	 * 
+	 * @return DatabaseResult
+	 */
+	public function schemas()
+	{
+		return $this->execute("SELECT nspname as schema FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname<>'information_schema'");
+	}
+
+	/**
+	 * Returns the list of tables and views for a given schema.
+	 * 
+	 * @param string $schema
+	 * @return DatabaseResult
+	 */
+	public function tables($schema)
+	{
+	  	$sql="select tablename from pg_tables where tablename not like 'pg\_%' "
+			."and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages', "
+	 		."'sql_packages', 'sql_sizing', 'sql_sizing_profiles') and schemaname='$schema';";
+	
+		return $this->execute($sql);
+	}
+	
+	/**
+	 * Returns the schema for the table.
+	 * 
+	 * @param $tablename
+	 * @param $related
+	 * @param $restricted_to_schema
+	 * @return unknown_type
+	 */
+	public function table($schema,$tablename, $related=false, $restricted_to_schema=false)
+	{
+		uses('system.data.driver.database.pgsql_table_schema');
+		$fuck=new PGSQLTableSchema($this,$schema,$tablename,$related,$restricted_to_schema);
+		return $fuck;
+	}
+	
 }

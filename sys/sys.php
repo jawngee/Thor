@@ -54,6 +54,8 @@ define('EXT', '.php');										/** Default file extension */
  */
 function uses($what)
 {
+	$altpath=null;
+	
 	$parts=explode('.',$what);
 	$type=array_shift($parts);
 	$path='';
@@ -74,6 +76,13 @@ function uses($what)
 		case 'model':
 			$path=PATH_APP.'model/';
 			break;
+		case 'channel':
+			$path=PATH_APP.'channel/';
+			break;
+		case 'control':
+			$path=PATH_SYS.'control/';
+			$altpath=PATH_APP.'control/';
+			break;
 	}
 	
 	
@@ -91,6 +100,10 @@ function uses($what)
 	else
 	{
 		$what=implode('/',$parts);
+		
+		if ($altpath)
+			if (!file_exists($path.$what.EXT))
+				$path=$altpath;
 		
 		require_once($path.$what.EXT);
 	}
@@ -226,7 +239,8 @@ function get_cookie($index = '', $xss_clean = FALSE)
 
 function get_view($view)
 {
-	return preg_replace("|{{([^}]*)}}|m",'<?=$1?>',file_get_contents($view.EXT));
+    $contents=preg_replace("|{{([^}]*)}}|m",'<?=$1?>',file_get_contents($view.EXT));
+    return $contents;
 }
 
 function render_fragment($fragment, &$data)

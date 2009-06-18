@@ -97,4 +97,10 @@ class PGSQLResult implements Iterator
     {
         return ($this->last!=null);
     }	
+    
+    public function to_array()
+    {
+    	pg_result_seek($this->result,0);
+    	return pg_fetch_all($this->result);
+    }
 }

@@ -49,6 +49,26 @@ final class Input implements Iterator
 	protected static $_files=null;
 	
 	private $_data=null;
+
+	/* never allowed, string replacement */
+	private $never_allowed_str = array(
+									'document.cookie'	=> '[removed]',
+									'document.write'	=> '[removed]',
+									'.parentNode'		=> '[removed]',
+									'.innerHTML'		=> '[removed]',
+									'window.location'	=> '[removed]',
+									'-moz-binding'		=> '[removed]',
+									'<!--'				=> '&lt;!--',
+									'-->'				=> '--&gt;',
+									'<![CDATA['			=> '&lt;![CDATA['
+									);
+	/* never allowed, regex replacement */
+	private $never_allowed_regex = array(
+										"javascript\s*:"			=> '[removed]',
+										"expression\s*(\(|&\#40;)"	=> '[removed]', // CSS and IE
+										"vbscript\s*:"				=> '[removed]', // IE, surprise!
+										"Redirect\s+302"			=> '[removed]'
+									);	
 	
 	/**
 	 * Constructor
@@ -107,6 +127,72 @@ final class Input implements Iterator
 		
 		return self::$_files;
 	}
+	
+	/**
+	* Clean Input Data
+	*
+	* This is a helper function. It escapes data and
+	* standardizes newline characters to \n
+	*
+	* @access	private
+	* @param	string
+	* @return	string
+	*/
+	private function _clean_input_data($str)
+	{
+		if (is_array($str))
+		{
+			$new_array = array();
+			foreach ($str as $key => $val)
+			{
+				$new_array[$this->_clean_input_keys($key)] = $this->_clean_input_data($val);
+			}
+			return $new_array;
+		}
+
+		// We strip slashes if magic quotes is on to keep things consistent
+		if (get_magic_quotes_gpc())
+		{
+			$str = stripslashes($str);
+		}
+
+		// Should we filter the input data?
+		if ($this->use_xss_clean === TRUE)
+		{
+			$str = $this->xss_clean($str);
+		}
+
+		// Standardize newlines
+		if (strpos($str, "\r") !== FALSE)
+		{
+			$str = str_replace(array("\r\n", "\r"), "\n", $str);
+		}
+
+		return $str;
+	}
+
+	/**
+	* Clean Keys
+	*
+	* This is a helper function. To prevent malicious users
+	* from trying to exploit keys we make sure that keys are
+	* only named with alpha-numeric text and a few other items.
+	*
+	* @access	private
+	* @param	string
+	* @return	string
+	*/
+	private function _clean_input_keys($str)
+	{
+		if ( ! preg_match("/^[a-z0-9:_\/-]+$/i", $str))
+		{
+			exit('Disallowed Key Characters.');
+		}
+
+		return $str;
+	}
+	
+	
 	
 	/**
 	 * Allows setting $_POST, $_GET, $_REQUEST.  Useful for testing and calling controllers from the command line.

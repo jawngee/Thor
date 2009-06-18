@@ -1,5 +1,5 @@
 <?
-	$loc=array_shift(explode('/',trim($_SERVER['PATH_INFO'],'/')));
+	$loc=(isset($_SERVER['PATH_INFO'])) ? array_shift(explode('/',trim($_SERVER['PATH_INFO'],'/'))) : '';
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -25,6 +25,8 @@
 					<li {{ ($loc=='') ? 'class="selected"' : '' }}><a href="/">Dashboard</a></li>
 					<li {{ ($loc=='slices') ? 'class="selected"' : '' }}><a href="/slices">Clouds</a></li>
 					<li {{ ($loc=='configs') ? 'class="selected"' : '' }}><a href="/configs">Configurations</a></li>
+					<li {{ ($loc=='inventories') ? 'class="selected"' : '' }}><a href="/inventory">Inventory</a></li>
+					<li {{ ($loc=='accounts') ? 'class="selected"' : '' }}><a href="/accounts">Accounts</a></li>
 				</ul>
 			</div>
 			<layout:content id="main" wrap="div" use_id="true" />

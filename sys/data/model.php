@@ -53,55 +53,55 @@ class Model implements ArrayAccess
     /**
      * The model is in a new state, meaning it is not in the DB
      */
-	const STATE_NEW=0;				
+    const STATE_NEW=0;
 
     /**
      * The model is in a valid state, meaning it has been loaded from the DB
      */
-	const STATE_VALID=1;			
+    const STATE_VALID=1;
 
     /**
      * The model is in a deleted state, meaning it has been deleted from the DB
      */
-	const STATE_DELETED=2;	
+    const STATE_DELETED=2;
+
+    /** The model is in a dirty state, meaning a value has changed. */
+    const STATE_DIRTY=3;
+
+    public $model_state=Model::STATE_NEW;		/** Current state of the model */
+    public $db=null;					/** Reference to the database connection */
+    public $table_name=null;			/** Name of the table 'shema.name' */
+    public $validators=null;			/** List of validators */
+    public $fields=null;				/** List of fields */
+    public $primary_key=null;			/** Name of the primary key */
+    public $primary_key_value=null;		/** Primary key value */
+    public $database='default';	/** Name of the database */
+    public $related=array();			/** Related tables */
+    public $readonly=false;				/** Is this a read-only model? */
+
+    /**
+     * Creates an instance of a model
+     */
+    public static function Instance($model,$id=null,$fields=null,$db=null,$row=null, $cacheable=false)
+    {
+		uses("model.$model");
 	
-	/** The model is in a dirty state, meaning a value has changed. */
-	const STATE_DIRTY=3;		
+		$class=str_replace('_','',array_pop(explode('.',$model)));
+		$instance=new $class($id,$fields,$db,$row,$cacheable);
 	
-	public $model_state=Model::STATE_NEW;		/** Current state of the model */
-	public $db=null;					/** Reference to the database connection */
-	public $table_name=null;			/** Name of the table 'shema.name' */
-	public $validators=null;			/** List of validators */
-	public $fields=null;				/** List of fields */
-	public $primary_key=null;			/** Name of the primary key */
-	public $primary_key_value=null;		/** Primary key value */
-	public $database='default';	/** Name of the database */
-	public $related=array();			/** Related tables */
-	public $readonly=false;				/** Is this a read-only model? */
-	
-	/**
-	 * Creates an instance of a model
-	 */
-	public static function Instance($model,$id=null,$fields=null,$db=null,$row=null, $cacheable=false)
-	{
-	 	uses("model.$model");
-	 	
-	 	$class=str_replace('_','',array_pop(explode('.',$model)));
-	 	$instance=new $class($id,$fields,$db,$row,$cacheable);
-	 	
 		return $instance;
-	}
+    }
 	
-	/**
+    /**
      * Called when an object is constructed for special case setup or
      * setting up business rules.		
      *
      * @return void
      */
-	protected function describe()
-	{
-	
-	}
+    protected function describe()
+    {
+
+    }
 	
     /**
      * Constructor
@@ -111,75 +111,76 @@ class Model implements ArrayAccess
      * @param  Database $db Database connection, can be null
      * @param  array	$row Database row to bind to, can be null
      */
-	public function __construct($id=null,$fields=null,$db=null,$row=null)
-	{
-		// If a db object has been passed in, assign it.
-		if (isset($db))
-			$this->db=$db;
-		else
-	    	$this->db=Database::Get($this->database);
-	    
-		// give the class a chance to describe itself for special case
-		// or business rule setup
-		$this->describe();
+    public function __construct($id=null,$fields=null,$db=null,$row=null)
+    {
+	// If a db object has been passed in, assign it.
+	if (isset($db))
+		$this->db=$db;
+	else
+	$this->db=Database::Get($this->database);
+
+	// give the class a chance to describe itself for special case
+	// or business rule setup
+	$this->describe();
 		
 		// CRUD:  pre_read hook
         if (isset($id) || isset($fields) || isset($row))
-             $this->pre_read();
+
+	$this->pre_read();
         
-	  	if (isset($id))
-	  	{
-	  		$this->primary_key_value=$id;
-	  		$this->reload();
-		}
-	  	else if (isset($fields))  // someone passed in fields to assign
-	  	{
-	  		// loop through and assign values
-	  	  	foreach($fields as $key=>$value)
-	      		$this->fields[$key]=$value;
-	  	}
-	  	else if (isset($row))	// someone passsed in a db row for us to bind to.
-	  		$this->bind($row);
+	if (isset($id))
+	{
+		$this->primary_key_value=$id;
+		$this->reload();
+	}
+	else if (isset($fields))  // someone passed in fields to assign
+	{
+		// loop through and assign values
+		foreach($fields as $key=>$value)
+		$this->fields[$key]=$value;
+	}
+	else if (isset($row))	// someone passsed in a db row for us to bind to.
+		$this->bind($row);
         
 		// CRUD:  post_read hook
         if (isset($id) || isset($fields) || isset($row))
             $this->post_read();
-	}
+    }
 
-	/**
-	 * Reloads the model from the database
-	 */
-	public function reload()
-	{
-  		// find by id
-		$result=$this->db->fetch_row($this->table_name, $this->primary_key, $this->primary_key_value);
+    /**
+     * Reloads the model from the database
+     */
+    public function reload()
+    {
+	// find by id
+	$result=$this->db->fetch_row($this->table_name, $this->primary_key, $this->primary_key_value);
 
-		// no result?  exit ...
-  	  	if (!$result)
-  	  		throw new Exception("Result $result");
-  	  
-  	  	// create our fields array if it doesn't yet exist.
-  		//$this->fields=array();
-			
-		// loop through the results and assign the values
-	  	foreach($result as $key=>$value)
-		  	if (!is_numeric($key))
-		  	{
-				if (isset($this->fields[$key]))
-				{
-					if ($this->fields[$key]->type==Field::MULTI)
-						$this->fields[$key]->value=$this->db->parse_array($value);
-					else if ($this->fields[$key]->type==Field::BOOLEAN)
-						$this->fields[$key]->value=($value=='t') ? true : ($value===true) ? true : false;
-					else
-						$this->fields[$key]->value=$value;
-				}
-				else
-					$this->fields[$key]=new Field($key,Field::STRING,1000,'Undocumented column',true,$value);
-		  	}
-	  		
-	  	$this->model_state=Model::STATE_VALID;
-	}
+	// no result?  exit ...
+	if (!$result)
+	    throw new Exception("Result $result");
+
+	// create our fields array if it doesn't yet exist.
+	//$this->fields=array();
+
+	// loop through the results and assign the values
+	foreach($result as $key=>$value)
+	    if (!is_numeric($key))
+	    {
+		if (isset($this->fields[$key]))
+		{
+		    if ($this->fields[$key]->type==Field::MULTI)
+			$this->fields[$key]->value=$this->db->parse_array($value);
+		    else if ($this->fields[$key]->type==Field::BOOLEAN)
+			$this->fields[$key]->value=($value=='t') ? true : ($value===true) ? true : false;
+		    else
+			$this->fields[$key]->value=$value;
+		}
+		else
+		    $this->fields[$key]=new Field($key,Field::STRING,1000,'Undocumented column',true,$value);
+	    }
+
+	$this->model_state=Model::STATE_VALID;
+    }
 	
 	
 	/**
@@ -400,7 +401,6 @@ class Model implements ArrayAccess
    			if ($result)
    			{
 	   			$this->model_state=Model::STATE_VALID;
-	 			$this->cache();
 	 			
 	 			// CRUD:  post_create hook
 	 	        $this->post_create();
@@ -418,7 +418,6 @@ class Model implements ArrayAccess
    		    if ($result)
    		    {
 	   		    $this->model_state=Model::STATE_VALID;
-	 			$this->cache();
 	 			
 	 			// CRUD:  post_update hook
 		        $this->post_update($fields);
@@ -437,11 +436,11 @@ class Model implements ArrayAccess
     {
         return $this->db->fetch_row($this->table_name,$this->primary_key,$this->primary_key_value);
     }
-	
-	protected function do_insert($fields)
-	{
-		return $this->db->insert($this->table_name, $fields, $this->primary_key);
-	}
+
+    protected function do_insert($fields)
+    {
+	return $this->db->insert($this->table_name, $this->primary_key, $fields);
+    }
 	
 	protected function do_update($fields)
 	{
@@ -474,7 +473,7 @@ class Model implements ArrayAccess
 				$this->model_state=Model::STATE_DELETED;
 				
 	 			// CRUD:  post_delete hook
-	 			$this->post_delete();
+	 			$this->post_delete($this->fields);
 
 			}
 		}
@@ -523,7 +522,7 @@ class Model implements ArrayAccess
                     case Field::OBJECT:
                         break;
                     default:
-   			   			$this->__set($name,$input->get_string($form_name));
+   			   			$this->__set($name,$input->{$form_name});
    						break;
    				}
    		   	}

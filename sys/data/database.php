@@ -228,4 +228,30 @@ abstract class Database
 	 * @return string
 	 */
 	abstract function collapse_array($value);
+
+
+	/**
+	 * Returns the schemas in the database.
+	 * 
+	 * @return DatabaseResult
+	 */
+	abstract function schemas();
+
+	/**
+	 * Returns the list of tables and views for a given schema.
+	 * 
+	 * @param string $schema
+	 * @return DatabaseResult
+	 */
+	abstract function tables($schema);
+	
+	/**
+	 * Returns the schema for the table.
+	 * 
+	 * @param $tablename
+	 * @param $related
+	 * @param $restricted_to_schema
+	 * @return unknown_type
+	 */
+	abstract function table($schema, $tablename, $related=false, $restricted_to_schema=false);
 }
